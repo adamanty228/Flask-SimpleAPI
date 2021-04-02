@@ -8,11 +8,18 @@ blueprint = Blueprint('jobs_api', __name__, template_folder='templates')
 
 @blueprint.route('/api/jobs')
 def get_jobs():
-    session = db_session.create_session()
-
-    # Получите список всех работ
-
-    return jsonify(...)  # Верните только нужные поля данных
+    @blueprint.route('/api/news/<int:news_id>', methods=['GET'])
+    def get_one_news(news_id):
+        db_sess = db_session.create_session()
+        jobs = db_sess.query(Jobs).get(news_id)
+        if not jobs:
+            return jsonify({'error': 'Not found'})
+        return jsonify(
+            {
+                'jobs': jobs.to_dict(only=(
+                    'team_leader', 'job', 'work_size', 'collaborations', 'is_finished'))
+            }
+        )
 
 
 @blueprint.route('/api/jobs/<int:job_id>', methods=['GET'])
